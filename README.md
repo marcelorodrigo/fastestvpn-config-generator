@@ -99,7 +99,7 @@ This will:
 
 After running the script, your `output/` folder will contain files like:
 
-```
+```text
 output/
 ├── united-states-new-york.conf
 ├── united-states-los-angeles.conf
