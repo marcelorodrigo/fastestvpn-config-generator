@@ -56,6 +56,7 @@ def fetch_vpn_servers(protocol='udp'):
     }
 
     response = session.post(url, headers=headers, data=data, timeout=15)
+    response.raise_for_status()  # Raises HTTPError for bad status codes
 
     # Use response.text which handles decoding automatically
     data = response.text
