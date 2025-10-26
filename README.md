@@ -63,15 +63,15 @@ pip install -r requirements.txt
    - In your email, request a WireGuard configuration file for your account
    - FastestVPN support will respond with a `.conf` file containing your credentials
 
-2. **Replace the template file**:
-   - Save the configuration file from FastestVPN support as `fastestvpn.conf` in the project root
-   - Make sure it includes your `PrivateKey` and `PublicKey` (under `[Peer]`)
-
-Example `fastestvpn.conf`:
+2. **Set up your configuration file**:
+   - Copy your configuration file received in the email to the project directory
+   - Rename it to `fastestvpn.conf`
+    
+Example `fastestvpn.conf` (after filling in your keys):
 ```ini
 [Interface]
 PrivateKey = your-actual-private-key-here
-Address = 172.16.2254.254/32
+Address = 172.16.254.254/32
 DNS = 10.8.8.8
 
 [Peer]
@@ -210,4 +210,3 @@ This is an unofficial tool for FastestVPN users. Please respect FastestVPN's ter
 
 **Note**: This tool is not affiliated with or endorsed by FastestVPN.
 It's a community project to help users manage their WireGuard configurations more easily.
-
