@@ -3,18 +3,20 @@ on:
   pull_request:
 jobs:
   test:
+    name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           show-progress: false
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           cache: 'pip'
+          python-version-file: '.python-version'
       - name: Install dependencies
         run: |
           python -m venv venv
