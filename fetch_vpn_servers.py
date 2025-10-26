@@ -29,7 +29,7 @@ def fetch_vpn_servers(protocol='udp'):
         'Sec-Fetch-User': '?1',
         'Sec-GPC': '1',
         'Priority': 'u=0',
-    })
+    }, timeout=15)
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:144.0) Gecko/20100101 Firefox/144.0',
@@ -55,7 +55,7 @@ def fetch_vpn_servers(protocol='udp'):
         'protocol': protocol
     }
 
-    response = session.post(url, headers=headers, data=data)
+    response = session.post(url, headers=headers, data=data, timeout=15)
 
     # Use response.text which handles decoding automatically
     data = response.text
