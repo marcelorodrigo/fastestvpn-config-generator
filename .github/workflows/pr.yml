@@ -17,13 +17,9 @@ jobs:
         with:
           cache: 'pip'
           python-version-file: '.python-version'
+      - name: Upgrade PIP
+        run: pip install --upgrade pip
       - name: Install dependencies
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
       - name: Run tests with coverage
-        run: |
-          source venv/bin/activate
-          pytest --cov=utils --cov-report=term-missing
+        run: pytest --cov=utils --cov-report=term-missing
