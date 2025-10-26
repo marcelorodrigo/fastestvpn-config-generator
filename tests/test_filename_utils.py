@@ -31,13 +31,13 @@ class TestSanitizeFilename:
     def test_should_remove_special_characters_when_present(self):
         """Should remove special characters when present."""
         # Given: text with special characters
-        text = "São Paulo!@#$%"
+        text = "So Paulo!@#$%"
 
         # When: sanitizing filename
         result = sanitize_filename(text)
 
         # Then: special characters and unicode should be removed
-        assert result == "são-paulo"
+        assert result == "so-paulo"
 
     def test_should_replace_underscores_with_hyphens_when_underscores_present(self):
         """Should replace underscores with hyphens when underscores present."""
@@ -86,7 +86,7 @@ class TestSanitizeFilename:
     @pytest.mark.parametrize("text,expected", [
         ("United Kingdom", "united-kingdom"),
         ("GERMANY", "germany"),
-        ("São Paulo", "são-paulo"),
+        ("So Paulo", "so-paulo"),
         ("New-York", "new-york"),
         ("test_123", "test-123"),
         ("Los Angeles!!!", "los-angeles"),
@@ -99,30 +99,90 @@ class TestSanitizeFilename:
         # When: sanitizing filename
         result = sanitize_filename(text)
 
-        # Then: result should match expected output
+        # Then: result should match expected
         assert result == expected
 
 
 class TestGenerateFilename:
     """Test suite for generate_filename function."""
 
-    def test_should_generate_standard_filename_when_country_and_city_provided(self):
-        """Should generate standard filename when country and city provided."""
-        # Given: server with country and city
+    def test_should_extract_prefix_from_simple_hostname(self):
+        """Should extract prefix from simple hostname."""
+        # Given: server with simple hostname
         server = {
-            'country': 'United States',
-            'city': 'New York',
-            'hostname': 'us-ny-01.jumptoserver.com'
+            'country': 'Spain',
+            'city': 'Barcelona',
+            'hostname': 'es-01.jumptoserver.com'
         }
 
         # When: generating filename
         result = generate_filename(server)
 
-        # Then: filename should use country and city
-        assert result == "united-states-new-york.conf"
+        # Then: filename should use hostname prefix
+        assert result == "es-01.conf"
 
-    def test_should_use_hostname_number_when_city_is_empty(self):
-        """Should use hostname number when city is empty."""
+    def test_should_extract_prefix_from_complex_hostname(self):
+        """Should extract prefix from complex hostname."""
+        # Given: server with complex hostname
+        server = {
+            'country': 'United States',
+            'city': 'New York',
+            'hostname': 'us-ny-05.jumptoserver.com'
+        }
+
+        # When: generating filename
+        result = generate_filename(server)
+
+        # Then: filename should use full prefix
+        assert result == "us-ny-05.conf"
+
+    def test_should_handle_streaming_server_hostname(self):
+        """Should handle streaming server hostname."""
+        # Given: server with streaming in hostname
+        server = {
+            'country': 'United Kingdom',
+            'city': 'London',
+            'hostname': 'uk-london-stream.jumptoserver.com'
+        }
+
+        # When: generating filename
+        result = generate_filename(server)
+
+        # Then: filename should preserve stream in prefix
+        assert result == "uk-london-stream.conf"
+
+    def test_should_handle_p2p_server_hostname(self):
+        """Should handle P2P server hostname."""
+        # Given: server with P2P in hostname
+        server = {
+            'country': 'Netherlands',
+            'city': 'Amsterdam',
+            'hostname': 'nl-amsterdam-01-p2p.jumptoserver.com'
+        }
+
+        # When: generating filename
+        result = generate_filename(server)
+
+        # Then: filename should preserve p2p in prefix
+        assert result == "nl-amsterdam-01-p2p.conf"
+
+    def test_should_handle_double_vpn_hostname(self):
+        """Should handle double VPN hostname."""
+        # Given: server with dvpn in hostname
+        server = {
+            'country': 'United States',
+            'city': 'New York',
+            'hostname': 'uk-dvpn.jumptoserver.com'
+        }
+
+        # When: generating filename
+        result = generate_filename(server)
+
+        # Then: filename should preserve dvpn in prefix
+        assert result == "uk-dvpn.conf"
+
+    def test_should_handle_empty_city(self):
+        """Should handle empty city."""
         # Given: server with empty city
         server = {
             'country': 'Canada',
@@ -133,171 +193,53 @@ class TestGenerateFilename:
         # When: generating filename
         result = generate_filename(server)
 
-        # Then: filename should use extracted number from hostname
-        assert result == "canada-01.conf"
+        # Then: filename should still use hostname prefix
+        assert result == "ca-01.conf"
 
-    def test_should_generate_streaming_filename_when_stream_in_hostname(self):
-        """Should generate streaming filename when stream in hostname."""
-        # Given: server with streaming hostname
+    def test_should_prepend_country_for_dbl_prefix(self):
+        """Should prepend sanitized country for -dbl prefix in hostname."""
+        # Given: server with -dbl in hostname
         server = {
-            'country': 'United States',
-            'city': 'Los Angeles',
-            'hostname': 'us-la-01-stream.jumptoserver.com'
+            'country': 'Brazil',
+            'city': 'Campinas',
+            'hostname': 'br-cf-dbl.jumptoserver.com'
         }
 
         # When: generating filename
         result = generate_filename(server)
 
-        # Then: filename should include streaming suffix
-        assert result == "united-states-los-angeles-streaming.conf"
+        # Then: filename should prepend sanitized country
+        assert result == "brazil-br-cf-dbl.conf"
 
-    def test_should_generate_double_vpn_filename_when_dvpn_in_hostname(self):
-        """Should generate double vpn filename when dvpn in hostname."""
-        # Given: server with double VPN hostname
-        server = {
-            'country': 'United States',
-            'city': 'New York',
-            'hostname': 'uk-dvpn.jumptoserver.com'
-        }
-
-        # When: generating filename
-        result = generate_filename(server)
-
-        # Then: filename should include via country
-        assert result == "united-states-new-york-via-uk.conf"
-
-    def test_should_generate_p2p_filename_when_p2p_in_hostname(self):
-        """Should generate p2p filename when p2p in hostname."""
-        # Given: server with P2P hostname
-        server = {
-            'country': 'Netherlands',
-            'city': 'Amsterdam',
-            'hostname': 'nl-amsterdam-01-p2p.jumptoserver.com'
-        }
-
-        # When: generating filename
-        result = generate_filename(server)
-
-        # Then: filename should include p2p suffix
-        assert result == "netherlands-amsterdam-p2p.conf"
-
-    def test_should_sanitize_country_name_when_generating_filename(self):
-        """Should sanitize country name when generating filename."""
-        # Given: server with country containing special characters
-        server = {
-            'country': 'United Kingdom!!!',
-            'city': 'London',
-            'hostname': 'uk-london-01.jumptoserver.com'
-        }
-
-        # When: generating filename
-        result = generate_filename(server)
-
-        # Then: country should be sanitized
-        assert result == "united-kingdom-london.conf"
-
-    def test_should_sanitize_city_name_when_generating_filename(self):
-        """Should sanitize city name when generating filename."""
-        # Given: server with city containing special characters
-        server = {
-            'country': 'Germany',
-            'city': 'Frankfurt am Main',
-            'hostname': 'de-frankfurt-01.jumptoserver.com'
-        }
-
-        # When: generating filename
-        result = generate_filename(server)
-
-        # Then: city should be sanitized
-        assert result == "germany-frankfurt-am-main.conf"
-
-    def test_should_strip_city_whitespace_when_present(self):
-        """Should strip city whitespace when present."""
-        # Given: server with city having whitespace
-        server = {
-            'country': 'Japan',
-            'city': '  Tokyo  ',
-            'hostname': 'jp-tokyo-01.jumptoserver.com'
-        }
-
-        # When: generating filename
-        result = generate_filename(server)
-
-        # Then: whitespace should be stripped
-        assert result == "japan-tokyo.conf"
-
-    def test_should_prioritize_streaming_over_other_types_when_stream_present(self):
-        """Should prioritize streaming over other types when stream present."""
-        # Given: server with streaming in hostname
-        server = {
-            'country': 'United States',
-            'city': 'Seattle',
-            'hostname': 'us-seattle-01-stream-p2p.jumptoserver.com'
-        }
-
-        # When: generating filename
-        result = generate_filename(server)
-
-        # Then: streaming should take priority
-        assert result == "united-states-seattle-streaming.conf"
-
-    def test_should_handle_hostname_with_city_code_when_city_empty(self):
-        """Should handle hostname with city code when city empty."""
-        # Given: server with empty city and complex hostname
-        server = {
-            'country': 'Australia',
-            'city': '',
-            'hostname': 'au-sydney-05.jumptoserver.com'
-        }
-
-        # When: generating filename
-        result = generate_filename(server)
-
-        # Then: should extract first number from hostname
-        assert result == "australia-05.conf"
-
-    @pytest.mark.parametrize("server,expected", [
-        (
-            {'country': 'Canada', 'city': 'Toronto', 'hostname': 'ca-tor-01.jumptoserver.com'},
-            'canada-toronto.conf'
-        ),
-        (
-            {'country': 'France', 'city': 'Paris', 'hostname': 'fr-paris-01-stream.jumptoserver.com'},
-            'france-paris-streaming.conf'
-        ),
-        (
-            {'country': 'Italy', 'city': 'Rome', 'hostname': 'it-rome-01-p2p.jumptoserver.com'},
-            'italy-rome-p2p.conf'
-        ),
-        (
-            {'country': 'Spain', 'city': 'Madrid', 'hostname': 'de-dvpn.jumptoserver.com'},
-            'spain-madrid-via-de.conf'
-        ),
-        (
-            {'country': 'Sweden', 'city': '', 'hostname': 'se-99.jumptoserver.com'},
-            'sweden-99.conf'
-        ),
-        (
-            {'country': 'Switzerland', 'city': 'Zürich', 'hostname': 'ch-zurich-01.jumptoserver.com'},
-            'switzerland-zürich.conf'
-        ),
+    @pytest.mark.parametrize("country,hostname,expected", [
+        ("Brazil", "br-cf-dbl.jumptoserver.com", "brazil-br-cf-dbl.conf"),
+        ("United States", "us-dbl.jumptoserver.com", "united-states-us-dbl.conf"),
+        ("Germany", "de-berlin-dbl.jumptoserver.com", "germany-de-berlin-dbl.conf"),
+        ("South Korea", "kr-seoul-dbl.jumptoserver.com", "south-korea-kr-seoul-dbl.conf"),
+        ("France!@#", "fr-paris-dbl.jumptoserver.com", "france-fr-paris-dbl.conf"),
     ])
-    def test_should_generate_correct_filename_for_various_servers(self, server, expected):
-        """Should generate correct filename for various servers."""
-        # Given: various server configurations
+    def test_should_generate_correct_filename_for_various_dbl_hostnames(self, country, hostname, expected):
+        """Should generate correct filename for various -dbl hostnames."""
+        # Given: server with specific hostname
+        server = {
+            'country': country,
+            'city': 'Test City',
+            'hostname': hostname
+        }
+
         # When: generating filename
         result = generate_filename(server)
 
         # Then: result should match expected filename
         assert result == expected
 
-    def test_should_return_conf_extension_when_generating_filename(self):
-        """Should return conf extension when generating filename."""
+    def test_should_return_conf_extension(self):
+        """Should return conf extension."""
         # Given: any valid server
         server = {
             'country': 'Test',
             'city': 'City',
-            'hostname': 'test-city-01.jumptoserver.com'
+            'hostname': 'test-01.jumptoserver.com'
         }
 
         # When: generating filename
@@ -305,4 +247,3 @@ class TestGenerateFilename:
 
         # Then: filename should end with .conf
         assert result.endswith('.conf')
-
