@@ -33,7 +33,7 @@ you'll have a complete library of ready-to-use config files organized by country
 1. Clone or download this repository:
 ```bash
 git clone https://github.com/marcelorodrigo/fastestvpn-config-generator.git
-cd fastestvpn-wireguard
+cd fastestvpn-config-generator
 ```
 
 2. Create a virtual environment (recommended):
