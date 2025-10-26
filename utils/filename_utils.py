@@ -1,7 +1,5 @@
 import re
 
-from .hostname_utils import extract_number_from_hostname, extract_double_vpn_country
-
 def sanitize_filename(text):
     """Sanitize text to be used as a filename."""
     # Remove or replace invalid filename characters
@@ -11,28 +9,16 @@ def sanitize_filename(text):
     return text.strip('-')
 
 def generate_filename(server):
-    """Generate filename based on country and city."""
-    country = sanitize_filename(server['country'])
-    city = server['city'].strip()
+    """Generate filename based on hostname prefix.
 
-    if city:
-        city_part = sanitize_filename(city)
-    else:
-        # If city is missing, extract number from hostname
-        city_part = extract_number_from_hostname(server['hostname'])
-
-    # Check if this is a streaming server
+    Extracts the prefix from hostname (e.g., 'br-cf.jumptoserver.com' -> 'br-cf.conf').
+    This ensures compatibility with file systems that have character limits.
+    """
     hostname = server['hostname']
-    if '-stream' in hostname:
-        return f"{country}-{city_part}-streaming.conf"
+    # Extract prefix before .jumptoserver.com
+    name = hostname.split('.')[0]
 
-    # Check if it's a Double VPN server
-    if '-dvpn' in hostname:
-        second_country = extract_double_vpn_country(hostname)
-        return f"{country}-{city_part}-via-{second_country}.conf"
+    if "-dbl" in name:
+        name = sanitize_filename(server['country']) + "-" + name
 
-    # Check if this is a P2P server
-    if hostname.endswith('-p2p.jumptoserver.com'):
-        return f"{country}-{city_part}-p2p.conf"
-
-    return f"{country}-{city_part}.conf"
+    return f"{name}.conf"

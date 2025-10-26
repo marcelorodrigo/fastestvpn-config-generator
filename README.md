@@ -9,18 +9,14 @@ server configured, this tool helps you quickly generate individual configuration
 across all locations worldwide.
 
 Instead of manually editing the configuration file each time you want to connect to a different server,
-you'll have a complete library of ready-to-use config files organized by country, city, and server type.
+you'll have a complete library of ready-to-use config files organized by server hostname.
 
 ## 🚀 Features
 
 - **Automatic Server Discovery**: Fetches the complete list of available VPN servers from FastestVPN support page
 - **Bulk Config Generation**: Creates individual `.conf` file for every server location
-- **Smart Naming**: Files are named by country, city, and server type (e.g., `united-states-new-york.conf`, `united-kingdom-london-streaming.conf`)
-- **Server Type Support**: Recognizes and labels specialized servers:
-  - Standard servers
-  - Streaming optimized servers
-  - P2P servers
-  - Double VPN servers
+- **Simple Naming**: Files are named using the server hostname prefix (e.g., `es-01.conf`, `uk-london-stream.conf`, `nl-dvpn.conf`)
+- **Compatible with Limited Filesystems**: Short filenames (15 characters or less) work with all filesystem limits
 - **Multi-Protocol Support**: Can fetch servers from TCP, UDP, and IKEv2 protocols
 
 ## 📋 Prerequisites
@@ -105,14 +101,16 @@ output/
 ├── united-states-los-angeles.conf
 ├── united-kingdom-london.conf
 ├── united-kingdom-london-streaming.conf
-├── canada-toronto.conf
-├── australia-sydney.conf
-├── germany-frankfurt.conf
-├── netherlands-amsterdam-p2p.conf
-└── ... (100+ more servers)
-```
-
-### View Available Servers
+├── us-ny-01.conf
+├── us-la-02.conf
+├── uk-london.conf
+├── uk-london-stream.conf
+├── ca-01.conf
+├── au-sydney.conf
+├── de-frankfurt.conf
+├── nl-amsterdam-p2p.conf
+├── es-01.conf
+├── br-cf.conf
 
 To see the list of all available servers without generating configs:
 
@@ -159,10 +157,11 @@ Consult your router's documentation for specific instructions.
 
 - **Regular browsing**: Use any standard server (e.g., `country-city.conf`)
 - **Streaming**: Use `-streaming` servers for better performance with Netflix, Hulu, etc.
-- **Torrenting/P2P**: Use `-p2p` servers for optimal peer-to-peer connections
-- **Extra privacy**: Use `-via-` Double VPN servers for multi-hop connections
-
-## 🔄 Updating Server Configs
+Files are named based on the server hostname prefix:
+- **Standard servers**: `us-01.conf`, `uk-london.conf`, etc.
+- **Streaming servers**: Look for `-stream` or `-streaming` in the filename (e.g., `uk-streaming.conf`)
+- **P2P/Torrenting servers**: Look for `-p2p` in the filename (e.g., `fi-p2p.conf`)
+- **Double VPN servers**: Look for `-dbl` in the filename (e.g., `uk-dbl.conf`)
 
 FastestVPN may add new servers or update existing ones. To refresh your configuration files:
 
