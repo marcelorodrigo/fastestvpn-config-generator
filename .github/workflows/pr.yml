@@ -1,0 +1,25 @@
+name: PR Checks
+on:
+  pull_request:
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          show-progress: false
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          cache: 'pip'
+          python-version-file: '.python-version'
+      - name: Upgrade PIP
+        run: pip install --upgrade pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests with coverage
+        run: pytest --cov=utils --cov-report=term-missing
