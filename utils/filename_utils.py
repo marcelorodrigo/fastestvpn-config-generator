@@ -32,7 +32,6 @@ def generate_filename(server):
         return f"{country}-{city_part}-via-{second_country}.conf"
 
     # Check if this is a P2P server
-    hostname = server['hostname']
     if hostname.endswith('-p2p.jumptoserver.com'):
         return f"{country}-{city_part}-p2p.conf"
 
