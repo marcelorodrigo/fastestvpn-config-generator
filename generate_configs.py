@@ -67,6 +67,7 @@ def main():
 
     # Generate config files
     generated_count = 0
+    written_files = set()
 
     for server, filename in assignments:
         try:
@@ -76,6 +77,7 @@ def main():
             # Write the config file
             output_path = output_dir / filename
             output_path.write_text(config_content)
+            written_files.add(filename)
 
             label = server['server_name'] or server['name'] or 'N/A'
             city = server['city'] or 'N/A'
@@ -91,7 +93,7 @@ def main():
 
     print(
         f"\nSuccessfully generated {generated_count} configuration entries "
-        f"({distinct_files} files) in '{output_dir}' directory"
+        f"({len(written_files)} files) in '{output_dir}' directory"
     )
 
 
