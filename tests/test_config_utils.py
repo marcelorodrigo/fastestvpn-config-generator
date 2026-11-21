@@ -21,20 +21,20 @@ Endpoint = ca-01.jumptoserver.com:51820"""
 
     @pytest.fixture
     def server_us(self):
-        """Provide a US server dictionary."""
+        """Provide a US server dictionary as the app API normalizes it."""
         return {
             'hostname': 'us-01.jumptoserver.com',
+            'port': 4443,
             'country': 'United States',
-            'protocol': 'WireGuard'
         }
 
     @pytest.fixture
     def server_uk(self):
-        """Provide a UK server dictionary."""
+        """Provide a UK server dictionary as the app API normalizes it."""
         return {
             'hostname': 'uk-london-01.jumptoserver.com',
+            'port': 4443,
             'country': 'United Kingdom',
-            'protocol': 'WireGuard'
         }
 
     def test_should_replace_endpoint_hostname_when_server_provided(
@@ -45,20 +45,21 @@ Endpoint = ca-01.jumptoserver.com:51820"""
         # When: generating config with a US server
         result = generate_config(template_content, server_us)
 
-        # Then: the endpoint should be replaced with the new hostname
-        assert 'Endpoint = us-01.jumptoserver.com:51820' in result
+        # Then: the endpoint should use the server hostname and port
+        assert 'Endpoint = us-01.jumptoserver.com:4443' in result
         assert 'Endpoint = ca-01.jumptoserver.com:51820' not in result
 
-    def test_should_preserve_port_51820_when_generating_config(
+    def test_should_use_server_port_instead_of_template_port(
         self, template_content, server_us
     ):
-        """Should preserve port 51820 when generating config."""
-        # Given: a template with port 51820
-        # When: generating config
+        """Should use server port instead of template port."""
+        # Given: a template carrying the old hardcoded 51820 port
+        # When: generating config with a server on port 4443
         result = generate_config(template_content, server_us)
 
-        # Then: the port should remain 51820
-        assert ':51820' in result
+        # Then: only the server's port should appear on the Endpoint line
+        assert 'Endpoint = us-01.jumptoserver.com:4443' in result
+        assert ':51820' not in result
 
     def test_should_preserve_interface_section_when_generating_config(
         self, template_content, server_uk
@@ -96,21 +97,21 @@ Endpoint = ca-01.jumptoserver.com:51820"""
         result = generate_config(template_content, server_uk)
 
         # Then: the full hostname with hyphens should be preserved
-        assert 'Endpoint = uk-london-01.jumptoserver.com:51820' in result
+        assert 'Endpoint = uk-london-01.jumptoserver.com:4443' in result
 
-    @pytest.mark.parametrize("hostname,expected_endpoint", [
-        ('us-01.jumptoserver.com', 'Endpoint = us-01.jumptoserver.com:51820'),
-        ('uk-london-01.jumptoserver.com', 'Endpoint = uk-london-01.jumptoserver.com:51820'),
-        ('de-frankfurt-01.example.com', 'Endpoint = de-frankfurt-01.example.com:51820'),
-        ('jp-tokyo-02.vpn.net', 'Endpoint = jp-tokyo-02.vpn.net:51820'),
-        ('au-sydney.server.io', 'Endpoint = au-sydney.server.io:51820'),
+    @pytest.mark.parametrize("hostname,port,expected_endpoint", [
+        ('us-01.jumptoserver.com', 4443, 'Endpoint = us-01.jumptoserver.com:4443'),
+        ('uk-london-01.jumptoserver.com', 4443, 'Endpoint = uk-london-01.jumptoserver.com:4443'),
+        ('de-frankfurt-01.example.com', 51820, 'Endpoint = de-frankfurt-01.example.com:51820'),
+        ('jp-tokyo-02.vpn.net', 1194, 'Endpoint = jp-tokyo-02.vpn.net:1194'),
+        ('au-sydney.server.io', 443, 'Endpoint = au-sydney.server.io:443'),
     ])
-    def test_should_generate_correct_endpoint_for_various_hostnames(
-        self, template_content, hostname, expected_endpoint
+    def test_should_generate_endpoint_from_hostname_and_port(
+        self, template_content, hostname, port, expected_endpoint
     ):
-        """Should generate correct endpoint for various hostnames."""
-        # Given: a server with specific hostname
-        server = {'hostname': hostname}
+        """Should generate endpoint from hostname and port."""
+        # Given: a server with a specific hostname and port
+        server = {'hostname': hostname, 'port': port}
 
         # When: generating config
         result = generate_config(template_content, server)
@@ -139,7 +140,7 @@ Endpoint = old-server.com:51820"""
         # Then: only the Endpoint line should be modified
         assert 'PrivateKey = some-key-with=equals=signs' in result
         assert 'PublicKey = another-key=with=equals' in result
-        assert 'Endpoint = us-01.jumptoserver.com:51820' in result
+        assert 'Endpoint = us-01.jumptoserver.com:4443' in result
         assert 'Endpoint = old-server.com:51820' not in result
 
     def test_should_return_string_when_generating_config(
@@ -166,5 +167,3 @@ Endpoint = old-server.com:51820"""
 
         # Then: line count should remain the same
         assert result_line_count == original_line_count
-# Test package
-

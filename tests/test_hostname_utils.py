@@ -1,6 +1,51 @@
 """Unit tests for hostname_utils module."""
 import pytest
-from utils.hostname_utils import extract_number_from_hostname, extract_double_vpn_country
+from utils.hostname_utils import (
+    extract_number_from_hostname,
+    extract_double_vpn_country,
+    extract_prefix,
+    extract_tail,
+)
+
+
+class TestExtractPrefix:
+    """Test suite for extract_prefix function."""
+
+    @pytest.mark.parametrize("hostname,expected", [
+        ('es-01.jumptoserver.com', 'es-01'),
+        ('ca-mnt2.jumptoserver.com', 'ca-mnt2'),
+        ('auau.jumptoserver.com', 'auau'),
+        ('uk-london-stream.jumptoserver.com', 'uk-london-stream'),
+    ])
+    def test_should_return_first_label_when_hostname_provided(self, hostname, expected):
+        """Should return first label when hostname provided."""
+        # Given: a hostname
+        # When: extracting prefix
+        result = extract_prefix(hostname)
+
+        # Then: result should be the first label
+        assert result == expected
+
+
+class TestExtractTail:
+    """Test suite for extract_tail function."""
+
+    @pytest.mark.parametrize("hostname,expected", [
+        ('ca-01.jumptoserver.com', '01'),
+        ('ca-mnt2.jumptoserver.com', 'mnt2'),
+        ('hk-dbl.jumptoserver.com', 'dbl'),
+        ('au-stream.jumptoserver.com', 'stream'),
+        ('auau.jumptoserver.com', 'auau'),
+        ('us-dvpn.jumptoserver.com', 'dvpn'),
+    ])
+    def test_should_strip_two_letter_country_code_when_present(self, hostname, expected):
+        """Should strip two letter country code when present."""
+        # Given: a hostname with a country code prefix
+        # When: extracting tail
+        result = extract_tail(hostname)
+
+        # Then: result should be the distinguishing part
+        assert result == expected
 
 
 class TestExtractNumberFromHostname:
