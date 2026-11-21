@@ -17,7 +17,7 @@ you'll have a complete library of ready-to-use config files organized by server 
 - **Bulk Config Generation**: Creates individual `.conf` file for every server location
 - **Simple Naming**: Files are named using the server hostname prefix (e.g., `es-01.conf`, `uk-london-stream.conf`, `nl-dvpn.conf`)
 - **Compatible with Limited Filesystems**: Short filenames (15 characters or less) work with all filesystem limits
-- **Multi-Protocol Support**: Can fetch servers from TCP, UDP, and IKEv2 protocols
+- **WireGuard Server Discovery**: Fetches the WireGuard server entries from the same API the FastestVPN Android app uses
 
 ## 📋 Prerequisites
 
@@ -111,17 +111,12 @@ output/
 ├── nl-amsterdam-p2p.conf
 ├── es-01.conf
 ├── br-cf.conf
-
-To see the list of all available servers without generating configs:
-
-```bash
-python3 fetch_vpn_servers.py
 ```
 
-For servers across all protocols:
+To see the list of all available WireGuard servers without generating configs:
 
 ```bash
-python3 fetch_all_protocols.py
+python3 fetch_app_servers.py
 ```
 
 ## 📱 Using the Configuration Files
