@@ -85,7 +85,15 @@ class TestParseServers:
         }
         assert server['country'] == 'Switzerland'
         assert server['server_name'] == 'Zurich 1'
-        assert server['port'] == 4443
+
+    def test_should_use_app_wireguard_port_not_api_row_port(self, payload):
+        """Should use app WireGuard port not API row port."""
+        # Given: fixture rows that carry the OpenVPN port 4443
+        # When: parsing the payload
+        servers = parse_servers(payload)
+
+        # Then: every entry should use the app's WireGuard port instead
+        assert {server['port'] for server in servers} == {51820}
 
     def test_should_return_empty_list_when_payload_has_no_data(self):
         """Should return empty list when payload has no data."""

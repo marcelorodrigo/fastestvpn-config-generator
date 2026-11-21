@@ -5,6 +5,10 @@ import requests
 
 API_URL = 'https://api.fastestvpn.com/v2/servers'
 
+#: WireGuard runs on UDP 51820. The app ignores the API's per-row port (used
+#: by the OpenVPN/IKEv2 rows) and appends this port to the server's dns itself.
+WIREGUARD_PORT = 51820
+
 
 def parse_servers(payload):
     """Return the enabled WireGuard entries from an API response payload.
@@ -26,7 +30,7 @@ def parse_servers(payload):
                 'name': row.get('name'),
                 'server_name': row.get('server_name'),
                 'hostname': row.get('dns'),
-                'port': row.get('port'),
+                'port': WIREGUARD_PORT,
             })
     return servers
 
